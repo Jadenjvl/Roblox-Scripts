@@ -1,57 +1,22 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local userInput = game:GetService("UserInputService")
+local playerGui = player:WaitForChild("PlayerGui")
 
-local flying = false
-local bodyVelocity
-local speed = 50
+-- Create a ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "CreditsGui"
+screenGui.Parent = playerGui
 
-local function startFlying()
-    bodyVelocity = Instance.new("BodyVelocity")
-    bodyVelocity.MaxForce = Vector3.new(1e4, 1e4, 1e4) -- High force to ensure flight
-    bodyVelocity.Velocity = Vector3.zero -- Start stationary
-    bodyVelocity.Parent = character.HumanoidRootPart
-end
+-- Create a TextLabel
+local textLabel = Instance.new("TextLabel")
+textLabel.Name = "CreditsLabel"
+textLabel.Parent = screenGui
+textLabel.Text = "Credits"
+textLabel.Size = UDim2.new(0.3, 0, 0.1, 0) -- Width: 30%, Height: 10%
+textLabel.Position = UDim2.new(0.35, 0, 0.45, 0) -- Centered on the screen
+textLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black background
+textLabel.BackgroundTransparency = 0.5 -- Semi-transparent background
+textLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
+textLabel.TextScaled = true -- Automatically scale text
+textLabel.Font = Enum.Font.SourceSansBold -- Bold font
 
-local function stopFlying()
-    if bodyVelocity then
-        bodyVelocity:Destroy()
-        bodyVelocity = nil
-    end
-end
-
-local function onChat(message)
-    if message:lower() == "/fly" then
-        flying = not flying
-        if flying then
-            startFlying()
-        else
-            stopFlying()
-        end
-    end
-end
-
-local function onInput(input, gameProcessed)
-    if flying and not gameProcessed then
-        if input.KeyCode == Enum.KeyCode.W then
-            bodyVelocity.Velocity = character.HumanoidRootPart.CFrame.LookVector * speed
-        elseif input.KeyCode == Enum.KeyCode.S then
-            bodyVelocity.Velocity = -character.HumanoidRootPart.CFrame.LookVector * speed
-        elseif input.KeyCode == Enum.KeyCode.Space then
-            bodyVelocity.Velocity = Vector3.new(0, speed, 0)
-        elseif input.KeyCode == Enum.KeyCode.LeftShift then
-            bodyVelocity.Velocity = Vector3.new(0, -speed, 0)
-        else
-            bodyVelocity.Velocity = Vector3.zero
-        end
-    end
-end
-
-player.Chatted:Connect(onChat)
-userInput.InputBegan:Connect(onInput)
-userInput.InputEnded:Connect(function(input)
-    if flying then
-        bodyVelocity.Velocity = Vector3.zero
-    end
-end)
